@@ -4,7 +4,7 @@
 import pyperclip
 
 #
-message = 'Be sure to bring the $$$.'
+message = 'This is my secret message.'
 
 #
 key = 20
