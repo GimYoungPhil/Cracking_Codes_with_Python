@@ -4,16 +4,16 @@
 import pyperclip
 
 #
-message = 'This is my secret message.'
+message = 'Be sure to bring the $$$.'
 
 #
-key = 13
+key = 20
+
+# 'encrypt' or 'decrypt'
+mode = 'encrypt'
 
 #
-mode = 'encrypt' # 'encrypt' or 'decrypt'
-
-#
-SYMBOLS = 'ABCEDFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.'
+SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.'
 
 #
 translated = ''
