@@ -1,22 +1,46 @@
-message = 'Common sence is not so common.'
+# Transposition Encrypt
+#
 
-key = 8
+import pyperclip
 
-translated = ''
+def main():
+    # myMessage = 'Common sence is not so common.'
+    myMessage = 'Then they trotted away for the wind grew high: One acorn they left, and no more might you spy.'
+    myKey = 9
 
-# i = 0, 1, 2, 3, 4, 5, 6, 7
-# j = 0, 8, 16, 24
-for i in range(key):
-    # print('i: %s' % (i))
+    ciphertext = encryptMessage(myKey, myMessage)
 
-    for j in [0, 8, 16, 24]:
-        # print('j: %s' % (j))
+    #
+    #
+    #
+    print(ciphertext + '|')
 
-        index = i + j
+    #
+    pyperclip.copy(ciphertext)
 
-        if index < len(message):
-            letter = message[index]
-            translated = translated + letter
 
-print(translated)
+def encryptMessage(key, message):
+    #
+    ciphertext = [''] * key
 
+    # 0..8
+    for column in range(key):
+        currentIndex = column
+
+        #
+        while currentIndex < len(message):
+            #
+            #
+            ciphertext[column] += message[currentIndex]
+
+            #
+            currentIndex += key
+
+    #
+    return ''.join(ciphertext)
+
+
+#
+
+if __name__ == '__main__':
+    main()
