@@ -4,9 +4,8 @@
 import pyperclip
 
 def main():
-    # myMessage = 'Common sence is not so common.'
-    myMessage = 'Then they trotted away for the wind grew high: One acorn they left, and no more might you spy.'
-    myKey = 9
+    myMessage = 'Common sence is not so common.'
+    myKey = 8
 
     ciphertext = encryptMessage(myKey, myMessage)
 
