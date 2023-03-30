@@ -5,6 +5,7 @@ def main():
     myKey = 8
 
     text = decrypt(myKey, myMessage)
+
     print(text)
 
 def decrypt(key, message):
@@ -12,8 +13,8 @@ def decrypt(key, message):
     length = len(message)
     columns = key
     rows = math.ceil(length / columns)
-    blank = (columns * rows) - length
     ciphertext = [''] * columns
+    blank = (columns * rows) - length
 
     # i=0, message[0:4]
     # i=1, message[4:8]
@@ -24,24 +25,32 @@ def decrypt(key, message):
     # i=6, message[24:27]
     # i=7, message[27:30]
     start = 0
-    end = 0
     for i in range(columns):
-        start = end
+        sign = 0
+        end = 0
+        if i == 0:
+            sign = 0
+        else:
+            sign = 1
+
+
+        if i <= columns - blank:
+            start += sign * rows
+        else:
+            start += sign * (rows - 1)
 
         if i < columns - blank:
             end = start + rows
         else:
             end = start + (rows - 1)
 
+        # print('text[%s:%s] ' % (start, end))
         ciphertext[i] = message[start:end]
+        print(ciphertext)
 
-    plaintext = ''
-    for j in range(rows):
-        for k in range(columns):
-            if length > len(plaintext):
-                plaintext += ciphertext[k][j]
 
-    return plaintext
+    return '____'
+
 
 if __name__ == '__main__':
     main()
