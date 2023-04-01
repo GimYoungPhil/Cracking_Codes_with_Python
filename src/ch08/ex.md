@@ -1,0 +1,16 @@
+# Q.1-a
+H_cb__irhdeuousBdi___prrtyevdgp_nir__eerit_eatoreechadihf_paken_ge_b_te_dih_aoa.da_tts_tn
+
+He_picked_up_the_acorn_and_buried_it_straight_By_the_side_of_a_river_both_deep_and_great.
+
+
+# Q.1-b
+A_b__drottthawa_nwar_eci_t_nlel_ktShw_leec,hheat_.na__e_soogmah_a__ateniAcgakh_dmnor__
+
+At_length_he_came_back,_and_with_him_a_She_And_the_acorn_was_grown_to_a_tall_oak_tree.
+
+
+# Q.1-c
+Bmmsrl_dpnaua!toeboo'ktn_uknrwos._yaregonr_w_nd,tu__oiady_hgtRwt___A_hhanhhasthtev__e_t_e__eo
+
+But_with_many_a_hem!_and_a_sturdy_stroke,_At_length_he_brought_down_the_poor_Raven's_own_oak.
