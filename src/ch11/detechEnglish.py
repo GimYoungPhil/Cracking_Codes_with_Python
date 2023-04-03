@@ -24,16 +24,16 @@ ENGLISH_WORDS = loadDictionary()
 def getEnglishCount(message):
     message = message.upper()
     message = removeNonLetters(message)
-    possiWords = message.split()
+    possibleWords = message.split()
 
-    if possiWords == []:
+    if possibleWords == []:
         return 0.0
 
     matches = 0
-    for word in possiWords:
+    for word in possibleWords:
         if word in ENGLISH_WORDS:
             matches += 1
-    return float(matches) / len(possiWords)
+    return float(matches) / len(possibleWords)
 
 
 def removeNonLetters(message):
