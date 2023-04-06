@@ -65,7 +65,7 @@ def decryptMessage(key, message):
             plaintext += SYMBOLS[(symbolIndex - keyB) * modInverseOfKeyA % len(SYMBOLS)]
         else:
             plaintext += symbol
-    return 'decrypted'
+    return plaintext
 
 
 def getRandomKey():
