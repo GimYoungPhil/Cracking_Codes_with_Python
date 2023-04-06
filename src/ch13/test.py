@@ -1,5 +1,5 @@
 def main():
-    test2()
+    gcd(409119243, 87780243)
 
 SYMBOLS = 'ABCDEFGHIJKLMNOP'
 al = 'abcdefghijklmnopqrstuvwxyz'
@@ -16,7 +16,9 @@ def test2():
 
 def gcd(a, b):
     while b != 0:
+        print('gcd(%s, %s)' % (a, b))
         a, b = b, a % b
+    print('gcd(%s, %s)' % (a, b))
     return a
 
 if __name__ == '__main__':
