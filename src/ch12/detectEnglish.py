@@ -1,9 +1,9 @@
-# Deteching English
+# Detecting English
 #
 
 #
-# import detechEnglish
-# detechEnglish.isEnglish(someString)
+# import detectEnglish
+# detectEnglish.isEnglish(someString)
 #
 #
 #

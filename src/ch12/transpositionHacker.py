@@ -1,7 +1,7 @@
 # Hacking The Transposition Cipher
 #
 
-import pyperclip, detechEnglish, transpositionDecrypt
+import pyperclip, detectEnglish, transpositionDecrypt
 
 def main():
     #
@@ -31,7 +31,7 @@ def hackTransposition(message):
 
         decryptedText = transpositionDecrypt.decryptMessage(key, message)
 
-        if detechEnglish.isEnglish(decryptedText):
+        if detectEnglish.isEnglish(decryptedText):
             #
             print()
             print('Possible encryption hack:')
