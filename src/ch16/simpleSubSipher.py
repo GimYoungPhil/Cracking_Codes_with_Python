@@ -46,18 +46,26 @@ def translateMessage(key, message, mode):
     translated = ''
     charsA = LETTERS
     charsB = key
+    if mode == 'decrypt':
+        #
+        #
+        charsA, charsB = charsB, charsA
 
+    #
     for symbol in message:
         if symbol.upper() in charsA:
+            #
             symIndex = LETTERS.find(symbol.upper())
             if symbol.isupper():
                 translated += charsB[symIndex].upper()
             else:
                 translated += charsB[symIndex].lower()
         else:
+            #
             translated += symbol
 
     return translated
+
 
 def getRandomKey():
     key = list(LETTERS)
