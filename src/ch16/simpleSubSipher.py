@@ -15,7 +15,7 @@ def main():
         sys.exit('There is an error in the key or symbol set.')
     if myMode == 'encrupt':
         translated = encryptMessage(myKey, myMessage)
-    elif myMode == 'decrupt':
+    elif myMode == 'decrypt':
         translated = decryptMessage(myKey, myMessage)
     print('Using key %s' % (myKey))
     print('The %sed message is:' % (myMode))
@@ -55,7 +55,7 @@ def translateMessage(key, message, mode):
     for symbol in message:
         if symbol.upper() in charsA:
             #
-            symIndex = LETTERS.find(symbol.upper())
+            symIndex = charsA.find(symbol.upper())
             if symbol.isupper():
                 translated += charsB[symIndex].upper()
             else:
