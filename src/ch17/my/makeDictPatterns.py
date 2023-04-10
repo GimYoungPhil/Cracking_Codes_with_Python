@@ -1,19 +1,21 @@
 import pprint
 
 def main():
-    words = loadDictionary()
-    dicts = makeDict(words)
-    dicts = pprint.pformat(dicts)
-    writeDict(dicts)
+    wordList = loadDictionary()
+    patterns = makePatterns(wordList)
+    patternsFormatted = pprint.pformat(patterns)
+    makeDict(patternsFormatted)
+
+    print('main...')
 
 
+# () -> (['ABBA', 'ABBY', ...])
 def loadDictionary():
-    dictionaryFile = open('dictionary.txt')
-    englishWords = {}
-    for word in dictionaryFile.read().split('\n'):
-        englishWords[word] = None
-    dictionaryFile.close()
-    return englishWords
+    openFile = open('dictionary.txt')
+    wordList = openFile.read().split('\n')
+    openFile.close()
+
+    return wordList
 
 
 def patternDict(word):
@@ -23,36 +25,33 @@ def patternDict(word):
     counter = 0
 
     for ch in word:
-        if ch in dic:
-            list.append(dic[ch])
-        else:
-            character = str(counter)
-            dic[ch] = character
-            list.append(character)
+        if ch not in dic:
+            dic[ch] = str(counter)
             counter = counter + 1
+        list.append(dic[ch])
 
     return '.'.join(list)
 
 
-def makeDict(words):
-    dictionary = {}
+def makePatterns(wordList):
+    patterns = {}
     
-    for word in words:
+    for word in wordList:
         pattern = patternDict(word)
-        if pattern in dictionary:
-            dictionary[pattern].append(word)
+        if pattern in patterns:
+            patterns[pattern].append(word)
         else:
-            dictionary[pattern] = [word]
+            patterns[pattern] = [word]
 
-    return dictionary
+    return patterns
 
 
 # allPatterns = {
 #     '0.1.0': 'MOM',
 #     '0.1.0.2': 'MOMY',
 # }
-def writeDict(dicts, fileName = 'dictPatterns.py'):
-    contents = 'allPatterns = ' + str(dicts)
+def makeDict(patterns, fileName = 'dictPatterns.py'):
+    contents = 'allPatterns = ' + str(patterns)
 
     dickFile = open(fileName, 'w')
     dickFile.write(contents)
