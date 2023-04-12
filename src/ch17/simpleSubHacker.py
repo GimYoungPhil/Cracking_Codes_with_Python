@@ -1,7 +1,7 @@
 # Hacking The Simple Substitution Cipher
 #
 
-import os, re, copy, pyperclip, simpleSubCipher, wordPatterns, makeWordPatterns
+import re, copy, pyperclip, simpleSubCipher, wordPatterns, makeWordPatterns
 
 
 
