@@ -97,16 +97,18 @@ def removeSolvedLettersFromMapping(letterMapping):
             if len(letterMapping[cipherletter]) == 1:
                 solvedLetters.append(letterMapping[cipherletter][0])
 
-                #
-                #
-                #
-                for cipherletter in LETTERS:
-                    for s in solvedLetters:
-                        if len(letterMapping[cipherletter]) != 1 and s in letterMapping[cipherletter]:
-                            letterMapping[cipherletter].remove(s)
-                            if len(letterMapping[cipherletter]) == 1:
-                                #
-                                loopAgain = True
+        #
+        #
+        #
+        for cipherletter in LETTERS:
+            print('cipherletter: ' + cipherletter)
+            for s in solvedLetters:
+                print('solvedLetters: ' + s)
+                if len(letterMapping[cipherletter]) != 1 and s in letterMapping[cipherletter]:
+                    letterMapping[cipherletter].remove(s)
+                    if len(letterMapping[cipherletter]) == 1:
+                        #
+                        loopAgain = True
     return letterMapping
 
 
