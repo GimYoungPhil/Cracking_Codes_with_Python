@@ -44,24 +44,24 @@ def translateMessage(key, message, mode):
     for k in key:
         keyList.append(LETTERS.find(k))
 
-    for cipher in message:
-        if cipher.upper() in LETTERS:
-            cipherIndex = LETTERS.find(cipher.upper())
+    for symbol in message:
+        if symbol.upper() in LETTERS:
+            symbolIndex = LETTERS.find(symbol.upper())
             if mode == 'encrypt':
-                cipherIndex += keyList[keyIndex]
+                symbolIndex += keyList[keyIndex]
             elif mode == 'decrypt':
-                cipherIndex -= keyList[keyIndex]
-            cipherIndex %= length
+                symbolIndex -= keyList[keyIndex]
+            symbolIndex %= length
 
-            plain = LETTERS[cipherIndex]
-            if cipher.islower():
-                plain = plain.lower()
-            translated.append(plain)
+            letter = LETTERS[symbolIndex]
+            if symbol.islower():
+                letter = letter.lower()
+            translated.append(letter)
 
             keyIndex += 1
             keyIndex %= lengthKey
         else:
-            translated.append(cipher)
+            translated.append(symbol)
 
     return ''.join(translated)
 
