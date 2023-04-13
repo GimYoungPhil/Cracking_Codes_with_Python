@@ -37,28 +37,31 @@ def translateMessage(key, message, mode):
     keyIndex = 0
     key = key.upper()
 
-    for symbol in message:
-        num = LETTERS.find(symbol.upper())
-        if num != -1:
+    keyList = []
+    lengthKey = len(key)
+    length = len(LETTERS)
+
+    for k in key:
+        keyList.append(LETTERS.find(k))
+
+    for cipher in message:
+        if cipher.upper() in LETTERS:
+            cipherIndex = LETTERS.find(cipher.upper())
             if mode == 'encrypt':
-                num += LETTERS.find(key[keyIndex])
+                cipherIndex += keyList[keyIndex]
             elif mode == 'decrypt':
-                num -= LETTERS.find(key[keyIndex])
+                cipherIndex -= keyList[keyIndex]
+            cipherIndex %= length
 
-            num %= len(LETTERS)
-
-            #
-            if symbol.isupper():
-                translated.append(LETTERS[num])
-            elif symbol.islower():
-                translated.append(LETTERS[num].lower())
+            plain = LETTERS[cipherIndex]
+            if cipher.islower():
+                plain = plain.lower()
+            translated.append(plain)
 
             keyIndex += 1
-            if keyIndex == len(key):
-                keyIndex = 0
+            keyIndex %= lengthKey
         else:
-            #
-            translated.append(symbol)
+            translated.append(cipher)
 
     return ''.join(translated)
 
