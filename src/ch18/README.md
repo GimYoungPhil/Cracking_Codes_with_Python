@@ -1,11 +1,18 @@
 
+|15| 8|25|25| 0|
+|---|---|---|---|---|
+|P|I|Z|Z|A|
 
-PIZZAP IZZAP IZ ZAP IZ ZAPIZZ
-COMMON SENSE IS NOT SO COMMON
-RWLLOC ADMST QR MOI AN BOBUNM
+
+```code
+| key    | PIZZAP IZZAP IZ ZAP IZ ZAPIZZ |
+| plain  | COMMON SENSE IS NOT SO COMMON |
+| cipher | RWLLOC ADMST QR MOI AN BOBUNM |
+```
 
 
 |키 길이|    식    |유효 키               |
+|---|---|---|
 |  1   | 26 ** 1  |=26                  |
 |  2   | 26 ** 2  |=676                 |
 |  3   | 26 ** 3  |=17576               |
