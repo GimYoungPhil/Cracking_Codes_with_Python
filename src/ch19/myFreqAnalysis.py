@@ -17,20 +17,35 @@ def getLetterCount(message):
     return letterCount
 
 
+def getItemAtIndexZero(items):
+    return items[0]
+
+
 # String
 # 'EASHOTIRNDGCLUYVFMBWJKXPQZ'
 def getFrequencyOrder(message):
 
     dictionary = getLetterCount(message)
 
-    # [('E', 30), ('A', 27), ('S', 23), ...]
-    sorted_dictionary = sorted(dictionary.items(), key = lambda item: item[1], reverse = True)
+    freqToLetter = {}
+    for (symbol, freq) in dictionary.items():
+        if freq not in freqToLetter:
+            freqToLetter[freq] = [symbol]
+        else:
+            freqToLetter[freq].append(symbol)
 
-    SYMBOLS = []
-    for (symbol, count) in sorted_dictionary:
-        SYMBOLS.append(symbol)
+    for freq in freqToLetter:
+        freqToLetter[freq].sort(key=ETAOIN.find, reverse=True)
+        freqToLetter[freq] = ''.join(freqToLetter[freq])
 
-    return ''.join(SYMBOLS)
+    freqPairs = list(freqToLetter.items())
+    freqPairs.sort(key=getItemAtIndexZero, reverse=True)
+
+    freqOrder = []
+    for freqPair in freqPairs:
+        freqOrder.append(freqPair[1])
+
+    return ''.join(freqOrder)
 
 
 
@@ -66,7 +81,11 @@ Born in Maida Vale, London, Turing was raised in southern England. He graduated 
 After the war, Turing worked at the National Physical Laboratory, where he designed the Automatic Computing Engine, one of the first designs for a stored-program computer. In 1948, Turing joined Max Newman's Computing Machine Laboratory, at the Victoria University of Manchester, where he helped develop the Manchester computers[13] and became interested in mathematical biology. He wrote a paper on the chemical basis of morphogenesis[1] and predicted oscillating chemical reactions such as the Belousov–Zhabotinsky reaction, first observed in the 1960s. Despite these accomplishments, Turing was never fully recognised in Britain during his lifetime because much of his work was covered by the Official Secrets Act.[14]
 Turing was prosecuted in 1952 for homosexual acts. He accepted hormone treatment with DES, a procedure commonly referred to as chemical castration, as an alternative to prison. Turing died on 7 June 1954, 16 days before his 42nd birthday, from cyanide poisoning. An inquest determined his death as a suicide, but it has been noted that the known evidence is also consistent with accidental poisoning. Following a public campaign in 2009, the British prime minister Gordon Brown made an official public apology on behalf of the British government for "the appalling way [Turing] was treated". Queen Elizabeth II granted a posthumous pardon in 2013. The term "Alan Turing law" is now used informally to refer to a 2017 law in the United Kingdom that retroactively pardoned men cautioned or convicted under historical legislation that outlawed homosexual acts.[15]
 Turing has an extensive legacy with statues of him and many things named after him, including an annual award for computer science innovations. He appears on the current Bank of England £50 note, which was released on 23 June 2021, to coincide with his birthday. A 2019 BBC series, as voted by the audience, named him the greatest person of the 20th century.
-"""
+qqx """
+
+    # text = getFrequencyOrder(myMessage)
+    # print(text)
+
     score = englishFreqMatchScore(myMessage)
     print(score)
 
