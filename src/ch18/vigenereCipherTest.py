@@ -1,4 +1,4 @@
-# The Vigènre Cipher
+# The Vigenère Cipher
 #
 
 import pyperclip
