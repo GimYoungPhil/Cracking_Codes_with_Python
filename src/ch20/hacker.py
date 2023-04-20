@@ -160,37 +160,104 @@ def cutMessage(message, length):
 
 
 
-def messageDecrypt(message, limitScore = 2):
-    keyList = []
+def messageDecrypt(message):
+    # { 2: ['A', 'I', 'N'], 1: ['B', 'C'] }
+    scoreDick = {}
+    maxScore = 0
 
     for subkey in LETTERS:
         decryptMessage = vigenereCipher.decryptMessage(subkey, message)
         score = freqAnalysis.englishFreqMatchScore(decryptMessage)
-        if score >= limitScore:
-            keyList.append(subkey)
+
+        if score > maxScore:
+            maxScore = score
+
+        if score not in scoreDick:
+            scoreDick[score] = [subkey]
+        else:
+            scoreDick[score].append(subkey)
 
     # ['A', 'G', 'H', 'I', 'M', 'N', 'P', 'T', 'V']
-    return keyList
+    return scoreDick[maxScore]
 
+
+
+# 0: AICK [0, 0, 0, 0]    10: IICK [1, 0, 0, 0]    20: NICK [2, 0, 0, 0]
+# 1: AICN [0, 0, 0, 1]    11: IICN [1, 0, 0, 1]    21: NICN [2, 0, 0, 1]
+# 2: AICR [0, 0, 0, 2]    12: IICR [1, 0, 0, 2]    22: NICR [2, 0, 0, 2]
+# 3: AICV [0, 0, 0, 3]    13: IICV [1, 0, 0, 3]    23: NICV [2, 0, 0, 3]
+# 4: AICY [0, 0, 0, 4]    14: IICY [1, 0, 0, 4]    24: NICY [2, 0, 0, 4]
+# 5: AZCK [0, 1, 0, 0]    15: IZCK [1, 1, 0, 0]    25: NZCK [2, 1, 0, 0]
+# 6: AZCN [0, 1, 0, 1]    16: IZCN [1, 1, 0, 1]    26: NZCN [2, 1, 0, 1]
+# 7: AZCR [0, 1, 0, 2]    17: IZCR [1, 1, 0, 2]    27: NZCR [2, 1, 0, 2]
+# 8: AZCV [0, 1, 0, 3]    18: IZCV [1, 1, 0, 3]    28: NZCV [2, 1, 0, 3]
+# 9: AZCY [0, 1, 0, 4]    19: IZCY [1, 1, 0, 4]    29: NZCY [2, 1, 0, 4]
+#         i / (50 / 5)      [2 * 1 * 5]
+#        (i % 10) / 5 []
+
+# [
+#     ['A', 'I', 'N', 'W', 'X'],
+#     ['I', 'Z'],
+#     ['C'],
+#     ['K', 'N', 'R', 'V', 'Y'],
+# ]
+def getKeyList(keyList):
+    keyword = []
+
+    totalLength = 1
+    keyLengthList = []
+    for keys in keyList:
+        lengthKeys = len(keys)
+        keyLengthList.append(lengthKeys)
+        totalLength *= lengthKeys
+
+    print(keyLengthList)
+    reversedList = keyLengthList.copy()
+    reversedList.reverse()
+
+    print(reversedList)
+
+    for i in range(totalLength):
+        word = []
+
+        for keys in keyList:
+            word.append(keys[i % len(keys)])
+        # 0
+        # word.append(keyList[0][i % lengthList[0]])
+        # word.append(keyList[1][i % lengthList[1]])
+        # word.append(keyList[2][i % lengthList[2]])
+        # word.append(keyList[3][i % lengthList[3]])
+
+        keyword.append(''.join(word))
+        keyword.sort()
+
+    return keyword
 
 
 # ('string', 3)
 def getKeyListWithKeyLength(message, keyLength):
 
     # { 0: 'string', 1: 'string', 2: 'string' }
-    messageDick = cutMessage(message, keyLength)
+    messageCut = cutMessage(message, keyLength)
+
+    # [['A', 'I', 'N', 'W', 'X'], 1: ['I', 'Z'], 2: ['C'], 3: ['K', 'N', 'R', 'V', 'Y']]
+    keyList = []
+
     for index in range(keyLength):
-        messageDick[index] = messageDecrypt(messageDick[index])
+        keyList.append(messageDecrypt(messageCut[index]))
+
+    print(keyList)
+
+    keys = getKeyList(keyList)
+    print(keys)
 
 
-    
-
-
-    print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, ))
+    # print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, ))
 
     # [1번째 후보 문자], [2번째 후보 문자], [3번째 후보 문자]
     # [['A', 'L', 'M'], ['S', 'N', 'O'], ['V', 'I', 'Z']]
     return []
+
 
 
 

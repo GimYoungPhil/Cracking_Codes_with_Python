@@ -49,7 +49,7 @@ def main():
 
     # getKeyListWithKeyLength
     print('6. getKeyListWithKeyLength')
-    messageDick = hacker.getKeyListWithKeyLength(hackedMessage, distances[0])
+    messageDick = hacker.getKeyListWithKeyLength(hackedMessage, distances[1])
     print(messageDick)
 
 
