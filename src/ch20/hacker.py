@@ -80,15 +80,20 @@ def getMostCommonFactors(seqFactors):
 
     factorCounts = {}
 
-    for factorList in seqFactors:
+    for seq in seqFactors:
+        factorList = seqFactors[seq]
         for factor in factorList:
             if factor not in factorCounts:
                 factorCounts[factor] = 0
             factorCounts[factor] += 1
 
-    print(factorCounts)
-    # for factor in factorCounts:
+    factorsByCount = []
+    for factor in factorCounts:
+        factorsByCount.append((factor, factorCounts[factor]))
 
+    factorsByCount.sort(key=getItemAtIndexOne, reverse=True)
+
+    return factorsByCount
 
 
 def cutMessage(message, length):
@@ -262,24 +267,13 @@ def kasiskiExamination(ciphertext):
         seqFactors[seq] = []
         for spacing in repeatedSeqSpacings[seq]:
             seqFactors[seq].extend(getUsefulFactors(spacing))
-
-    # distanceList = orderDistance(repeatedSeqSpacings)
     print(seqFactors)
     print()
 
     print('3. getMostCommonFactors')
     factorsByCount = getMostCommonFactors(seqFactors)
-
-    # print('4. doubleFactors')
-    # doubleFactors = getDoubleFactors(distanceList)
-    # print(doubleFactors)
-    # print()
-
-    # 거리들의 약수로 단거 길이 목록을 만듬
-    # print('5. getCounterOrder')
-    # distances = getCounterOrder(doubleFactors)
-    # print(distances)
-    # print()
+    print(factorsByCount)
+    print()
 
     return []
 
