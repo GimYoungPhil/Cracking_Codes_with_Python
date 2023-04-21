@@ -256,26 +256,30 @@ def getKeyListWithKeyLength(message, keyLength):
 
 def kasiskiExamination(ciphertext):
 
-    print('1. findRepeatSequencesSpacings')
+    # print('1. findRepeatSequencesSpacings')
     repeatedSeqSpacings = findRepeatSequencesSpacings(ciphertext)
-    print(repeatedSeqSpacings)
-    print()
+    # print(repeatedSeqSpacings)
+    # print()
 
-    print('2. getUsefulFactors')
+    # print('2. getUsefulFactors')
     seqFactors = {}
     for seq in repeatedSeqSpacings:
         seqFactors[seq] = []
         for spacing in repeatedSeqSpacings[seq]:
             seqFactors[seq].extend(getUsefulFactors(spacing))
-    print(seqFactors)
-    print()
+    # print(seqFactors)
+    # print()
 
-    print('3. getMostCommonFactors')
+    # print('3. getMostCommonFactors')
     factorsByCount = getMostCommonFactors(seqFactors)
-    print(factorsByCount)
-    print()
+    # print(factorsByCount)
+    # print()
 
-    return []
+    allLikelyKeyLengths = []
+    for lengthAndFreq in factorsByCount:
+        allLikelyKeyLengths.append(lengthAndFreq[0])
+
+    return allLikelyKeyLengths
 
 
 def attemptHackWithKeyLength(ciphertext, keyLength):
