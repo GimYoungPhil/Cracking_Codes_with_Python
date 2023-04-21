@@ -160,11 +160,6 @@ def makeMatrix2(listA, listB):
 
 
 
-# [[A,B,C],[D,E],[F,G],[H,I,J]]
-# firstList: [A,B,C], restList: [[D,E],[F,G],[H,I,J]]
-#                     nextList: [D,E]
-#                     nextList: [F,G]
-#                     nextList: [H,I,J]
 def makeMatrix3(dobuleList):
     matrix = []
     firstList = dobuleList[0]
@@ -182,12 +177,6 @@ def makeMatrix3(dobuleList):
 
 
 
-# [
-#     ['A', 'I', 'N', 'W', 'X'],
-#     ['I', 'Z'],
-#     ['C'],
-#     ['K', 'N', 'R', 'V', 'Y'],
-# ]
 def makeMatrix4(dobuleList):
 
     matrix = []
@@ -261,7 +250,6 @@ def getKeyListWithKeyLength(message, keyLength):
 
 
 def kasiskiExamination(ciphertext):
-    print()
 
     print('1. findRepeatSequencesSpacings')
     repeatedSeqSpacings = findRepeatSequencesSpacings(ciphertext)
