@@ -86,8 +86,8 @@ def getMostCommonFactors(seqFactors):
                 factorCounts[factor] = 0
             factorCounts[factor] += 1
 
-    # return factorCounts
-    for factor in factorCounts:
+    print(factorCounts)
+    # for factor in factorCounts:
 
 
 
@@ -278,6 +278,9 @@ def kasiskiExamination(ciphertext):
     # distanceList = orderDistance(repeatedSeqSpacings)
     print(seqFactors)
     print()
+
+    print('3. getMostCommonFactors')
+    factorsByCount = getMostCommonFactors(seqFactors)
 
     # print('4. doubleFactors')
     # doubleFactors = getDoubleFactors(distanceList)
