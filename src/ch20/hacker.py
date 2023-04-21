@@ -1,66 +1,68 @@
 # Hacking The Vigenère Cipher
 #
 
-import vigenereCipher, freqAnalysis
+import re
+import vigenereCipher, freqAnalysis, pyperclip
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+MAX_KEY_LENGTH = 16
+NUM_MOST_FREQ_LETTERS = 4
+SILENT_MODE = False
+NONLETTERS_PATTERN = re.compile('[^A-Z]')
+
+
+def main():
+    ciphertext = """
+PPQCA XQVEKG YBNKMAZU YBNGBAL JON I TSZM JYIM.
+VRAG VOHT VRAU C TKSG. DDWUO XITLAZU VAVV RAZ C VKB QP IWPOU.
+"""
+    hackedMessage = hackVigenera(ciphertext)
+
+    if hackedMessage != None:
+        print('Copying hacked message to clipboard:')
+        print(hackedMessage)
+        pyperclip.copy(hackedMessage)
+    else:
+        print('Failed to hack encryption.')
+
+
+def findRepeatSequencesSpacings(message):
+
+    message = NONLETTERS_PATTERN.sub('', message.upper())
+
+    seqSpacings = {}
+
+    for seqLength in range(3, 6):
+
+        messageLimit = len(message) - seqLength
+
+        for seqStart in range(messageLimit):
+
+            seq = message[seqStart:seqStart + seqLength]
+
+            for candStart in range(seqStart + seqLength, messageLimit):
+
+                cand = message[candStart:candStart + seqLength]
+
+                if seq == cand:
+                    if seq not in seqSpacings:
+                        seqSpacings[seq] = []
+
+                    seqSpacings[seq].append(candStart - seqStart)
+
+    # { 'VRA': [8, 24, 32], 'AZU': [48], 'YBN': [8] }
+    return seqSpacings
 
 
 
-def simpleText(message):
-    text = []
+def getUsefulFactors(num):
 
-    for symbol in message:
-        if symbol.upper() in LETTERS:
-            text.append(symbol.upper())
-    return ''.join(text)
+    if num < 2:
+        return []
 
-
-
-def findDistance(message, lengthWord = 3):
-    # [('YBN', 8), ('AZU', 48), ('VRA', 8), ('VRA', 32), ('VRA', 24)]
-    record = []
-    lengthMessage = len(message)
-    wordRange = lengthMessage + 1 - (lengthWord * 2)
-    candRange = lengthMessage + 1 - (lengthWord * 1)
-
-    for wordIndex in range(wordRange):
-
-        word = message[wordIndex:wordIndex + lengthWord]
-
-        for candIndex in range(wordIndex + lengthWord, candRange):
-
-            cand = message[candIndex:candIndex + lengthWord]
-
-            if word == cand:
-                record.append((word, candIndex - wordIndex))
-
-    return record
-
-
-
-# [('YBN', 8), ('AZU', 48), ('VRA', 8), ('VRA', 32), ('VRA', 24)]
-def orderDistance(tupleList):
-
-    # [ 8, 48, 32, 24]
-    distanceList = []
-    for (word, distance) in tupleList:
-        if distance not in distanceList:
-            distanceList.append(distance)
-        
-
-    # [8, 24, 32, 48]
-    distanceList.sort()
-
-    return distanceList
-
-
-
-# 48
-def getFactors(num):
     factors = []
 
-    for f in range(2, num + 1):
+    for f in range(2, MAX_KEY_LENGTH + 1):
         if num % f == 0:
             factors.append(f)
 
@@ -69,75 +71,23 @@ def getFactors(num):
 
 
 
-# [8, 24, 32, 48]
-def getDoubleFactors(numbers):
-    doubleList = []
-
-    for number in numbers:
-        factorList = getFactors(number)
-        doubleList.append(factorList)
-
-    # [
-    #     [2, 4, 8]
-    #     [2, 3, 4, 6, 8, 12, 24]
-    #     [2, 4, 8, 16, 32]
-    #     [2, 3, 4, 6, 8, 12, 16, 24, 48]
-    # ]
-    return doubleList
+def getItemAtIndexOne(items):
+    return items[1]
 
 
 
-# [
-#     [2, 4, 8]
-#     [2, 3, 4, 6, 8, 12, 24]
-#     [2, 4, 8, 16, 32]
-#     [2, 3, 4, 6, 8, 12, 16, 24, 48]
-# ]
-def getFactorCount(doubleList):
-    # {2: 4, 3: 2, 4: 4, 6: 2, 8: 4, 12: 2, 24: 2, 16: 2, 48: 1, 32: 1}
-    counter = {}
+def getMostCommonFactors(seqFactors):
 
-    for oneList in doubleList:
-        for factor in oneList:
-            if factor not in counter:
-                counter[factor] = 1
-            else:
-                counter[factor] += 1
+    factorCounts = {}
 
-    return counter
+    for factorList in seqFactors:
+        for factor in factorList:
+            if factor not in factorCounts:
+                factorCounts[factor] = 0
+            factorCounts[factor] += 1
 
-
-def getItemAtIndexZero(items):
-    return items[0]
-
-
-def getCounterOrder(doubleList):
-    factorToCount = getFactorCount(doubleList)
-
-    # { 2: [3, 6, 12, 24, 16], 4: [2, 4, 8], 1: [28, 32] }
-    countToFactor = {}
-    for factor in factorToCount:
-        if factorToCount[factor] not in countToFactor:
-            countToFactor[factorToCount[factor]] = [factor]
-        else:
-            countToFactor[factorToCount[factor]].append(factor)
-
-    # { 2: [24, 16, 12, 6, 3], 4: [8, 4, 2], 1: [32, 28] }
-    for count in countToFactor:
-        countToFactor[count].sort(reverse=False)
-
-    # [(2, [24, 16, 12, 6, 3]), (4, [8, 4, 2]), (1, [32, 28])]
-    countPairs = list(countToFactor.items())
-
-    # [(4, [8, 4, 2]), (2, [24, 16, 12, 6, 3]), (1, [32, 28])]
-    countPairs.sort(key=getItemAtIndexZero, reverse=True)
-
-    # [8, 4, 2, 24, 16, 12, 6, 3, 32, 28]
-    countOrder = []
-    for countPair in countPairs:
-        countOrder.extend(countPair[1])
-
-    return countOrder
+    # return factorCounts
+    for factor in factorCounts:
 
 
 
@@ -182,18 +132,55 @@ def messageDecrypt(message):
 
 
 
-# 0: AICK [0, 0, 0, 0]    10: IICK [1, 0, 0, 0]    20: NICK [2, 0, 0, 0]
-# 1: AICN [0, 0, 0, 1]    11: IICN [1, 0, 0, 1]    21: NICN [2, 0, 0, 1]
-# 2: AICR [0, 0, 0, 2]    12: IICR [1, 0, 0, 2]    22: NICR [2, 0, 0, 2]
-# 3: AICV [0, 0, 0, 3]    13: IICV [1, 0, 0, 3]    23: NICV [2, 0, 0, 3]
-# 4: AICY [0, 0, 0, 4]    14: IICY [1, 0, 0, 4]    24: NICY [2, 0, 0, 4]
-# 5: AZCK [0, 1, 0, 0]    15: IZCK [1, 1, 0, 0]    25: NZCK [2, 1, 0, 0]
-# 6: AZCN [0, 1, 0, 1]    16: IZCN [1, 1, 0, 1]    26: NZCN [2, 1, 0, 1]
-# 7: AZCR [0, 1, 0, 2]    17: IZCR [1, 1, 0, 2]    27: NZCR [2, 1, 0, 2]
-# 8: AZCV [0, 1, 0, 3]    18: IZCV [1, 1, 0, 3]    28: NZCV [2, 1, 0, 3]
-# 9: AZCY [0, 1, 0, 4]    19: IZCY [1, 1, 0, 4]    29: NZCY [2, 1, 0, 4]
-#         i / (50 / 5)      [2 * 1 * 5]
-#        (i % 10) / 5 []
+def makeMatrix(listA, listB):
+    matrix = []
+    for elementsA in listA:
+        for elementsB in listB:
+            temp = []
+            temp.extend(elementsA)
+            temp.extend(elementsB)
+            matrix.append(temp)
+
+    return matrix
+
+
+
+def makeMatrix2(listA, listB):
+    lenA = len(listA)
+    lenB = len(listB)
+    matrix = []
+
+    for index in range(lenA * lenB):
+        temp = []
+        temp.extend(listA[int(index / lenB)])
+        temp.extend(listB[int(index % lenB)])
+        matrix.append(temp)
+
+    return matrix
+
+
+
+# [[A,B,C],[D,E],[F,G],[H,I,J]]
+# firstList: [A,B,C], restList: [[D,E],[F,G],[H,I,J]]
+#                     nextList: [D,E]
+#                     nextList: [F,G]
+#                     nextList: [H,I,J]
+def makeMatrix3(dobuleList):
+    matrix = []
+    firstList = dobuleList[0]
+    restList = dobuleList[1:]
+    for firstElement in firstList:
+        for nextList in restList:
+            nextEmpt = []
+            for element in nextList:
+                empt = []
+                empt.append(firstElement)
+                empt.append(element)
+            nextEmpt.append(empt)
+
+    return matrix
+
+
 
 # [
 #     ['A', 'I', 'N', 'W', 'X'],
@@ -201,37 +188,50 @@ def messageDecrypt(message):
 #     ['C'],
 #     ['K', 'N', 'R', 'V', 'Y'],
 # ]
-def getKeyList(keyList):
-    keyword = []
+def makeMatrix4(dobuleList):
 
-    totalLength = 1
-    keyLengthList = []
-    for keys in keyList:
-        lengthKeys = len(keys)
-        keyLengthList.append(lengthKeys)
-        totalLength *= lengthKeys
+    matrix = []
 
-    print(keyLengthList)
-    reversedList = keyLengthList.copy()
-    reversedList.reverse()
+    for innerList in dobuleList:
+        if len(matrix) == 0:
+            matrix.extend(innerList)
+        else:
+            tempList = []
+            for elementMatrix in matrix:
+                for elemtntInner in innerList:
+                    innerTemp = []
+                    innerTemp.extend(elementMatrix)
+                    innerTemp.extend(elemtntInner)
+                    tempList.append(innerTemp)
+            matrix = tempList
+    # [
+    #     ['A', 'I', 'C', 'K'],
+    #     ['A', 'I', 'C', 'N'],
+    #     ['A', 'I', 'C', 'R'],
+    #     ['A', 'I', 'C', 'V'],
+    #     ['A', 'I', 'C', 'Y'],
+    #     ...
+    # ]
+    return matrix
 
-    print(reversedList)
 
-    for i in range(totalLength):
-        word = []
 
-        for keys in keyList:
-            word.append(keys[i % len(keys)])
-        # 0
-        # word.append(keyList[0][i % lengthList[0]])
-        # word.append(keyList[1][i % lengthList[1]])
-        # word.append(keyList[2][i % lengthList[2]])
-        # word.append(keyList[3][i % lengthList[3]])
+# [
+#     ['A', 'I', 'C', 'K'],
+#     ['A', 'I', 'C', 'N'],
+#     ['A', 'I', 'C', 'R'],
+#     ['A', 'I', 'C', 'V'],
+#     ['A', 'I', 'C', 'Y'],
+#     ...
+# ]
+def getKeywordList(dobuleList):
+    empty = []
+    for innerList in dobuleList:
+        keyword = ''.join(innerList)
+        empty.append(keyword)
 
-        keyword.append(''.join(word))
-        keyword.sort()
+    return empty
 
-    return keyword
 
 
 # ('string', 3)
@@ -246,35 +246,77 @@ def getKeyListWithKeyLength(message, keyLength):
     for index in range(keyLength):
         keyList.append(messageDecrypt(messageCut[index]))
 
-    print(keyList)
+    keywordMatrix = makeMatrix4(keyList)
 
-    keys = getKeyList(keyList)
-    print(keys)
+    keywordList = getKeywordList(keywordMatrix)
+
+    print(keywordList)
 
 
     # print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, ))
 
-    # [1번째 후보 문자], [2번째 후보 문자], [3번째 후보 문자]
-    # [['A', 'L', 'M'], ['S', 'N', 'O'], ['V', 'I', 'Z']]
+
     return []
 
 
 
+def kasiskiExamination(ciphertext):
+    print()
 
-def main():
-    ciphertext = """
-PPQCA XQVEKG YBNKMAZU YBNGBAL JON I TSZM JYIM.
-VRAG VOHT VRAU C TKSG. DDWUO XITLAZU VAVV RAZ C VKB QP IWPOU.
-"""
-    # hackedMessage = simpleText(ciphertext)
-    # findDistance(hackedMessage)
+    print('1. findRepeatSequencesSpacings')
+    repeatedSeqSpacings = findRepeatSequencesSpacings(ciphertext)
+    print(repeatedSeqSpacings)
+    print()
+
+    print('2. getUsefulFactors')
+    seqFactors = {}
+    for seq in repeatedSeqSpacings:
+        seqFactors[seq] = []
+        for spacing in repeatedSeqSpacings[seq]:
+            seqFactors[seq].extend(getUsefulFactors(spacing))
+
+    # distanceList = orderDistance(repeatedSeqSpacings)
+    print(seqFactors)
+    print()
+
+    # print('4. doubleFactors')
+    # doubleFactors = getDoubleFactors(distanceList)
+    # print(doubleFactors)
+    # print()
+
+    # 거리들의 약수로 단거 길이 목록을 만듬
+    # print('5. getCounterOrder')
+    # distances = getCounterOrder(doubleFactors)
+    # print(distances)
+    # print()
+
+    return []
 
 
-    # if hackedMessage != None:
-    #     print('Copying hacked message to clipboard:')
-    #     print(hackedMessage)
-    # else:
-    #     print('Failed to hack encryption.')
+def attemptHackWithKeyLength(ciphertext, keyLength):
+    print()
+
+
+def hackVigenera(ciphertext):
+    allLikelyKeyLengths = kasiskiExamination(ciphertext)
+    if not SILENT_MODE:
+        keyLengthStr = ''
+        for keyLength in allLikelyKeyLengths:
+            keyLengthStr += '%s ' % (keyLength)
+        print('Kasiski examination results say the most likely key lengths are: ' + keyLengthStr + '\n')
+    hackedMessage = None
+    for keyLength in allLikelyKeyLengths:
+        if not SILENT_MODE:
+            print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, NUM_MOST_FREQ_LETTERS ** keyLength))
+        hackedMessage = attemptHackWithKeyLength(ciphertext, keyLength)
+        if hackedMessage != None:
+            break
+
+    #
+    if hackedMessage == None:
+        if not SILENT_MODE:
+            print('Unable to hack message with likely key length(s). Brute-forcing key length...')
+
 
 if __name__ == '__main__':
     main()
