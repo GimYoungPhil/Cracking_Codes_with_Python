@@ -2,7 +2,7 @@
 #
 
 import re
-import vigenereCipher, freqAnalysis, pyperclip
+import vigenereCipher, freqAnalysis, pyperclip, detectEnglish
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 MAX_KEY_LENGTH = 16
@@ -12,10 +12,7 @@ NONLETTERS_PATTERN = re.compile('[^A-Z]')
 
 
 def main():
-    ciphertext = """
-PPQCA XQVEKG YBNKMAZU YBNGBAL JON I TSZM JYIM.
-VRAG VOHT VRAU C TKSG. DDWUO XITLAZU VAVV RAZ C VKB QP IWPOU.
-"""
+    ciphertext = """PPQCA XQVEKG YBNKMAZU YBNGBAL JON I TSZM JYIM. VRAG VOHT VRAU C TKSG. DDWUO XITLAZU VAVV RAZ C VKB QP IWPOU."""
     hackedMessage = hackVigenera(ciphertext)
 
     if hackedMessage != None:
@@ -96,6 +93,7 @@ def getMostCommonFactors(seqFactors):
     return factorsByCount
 
 
+
 def cutMessage(message, length):
     # { 0: [], 1: [], 2: [] }
     messageLength = len(message)
@@ -115,7 +113,7 @@ def cutMessage(message, length):
 
 
 
-def messageDecrypt(message):
+def messageDecrypt1(message):
     # { 2: ['A', 'I', 'N'], 1: ['B', 'C'] }
     scoreDick = {}
     maxScore = 0
@@ -134,6 +132,29 @@ def messageDecrypt(message):
 
     # ['A', 'G', 'H', 'I', 'M', 'N', 'P', 'T', 'V']
     return scoreDick[maxScore]
+
+
+
+def messageDecrypt(message):
+    # [('A', 2), ('B', 1), ('C', 0), ... ]
+    scoreList = []
+
+    for subkey in LETTERS:
+        decryptMessage = vigenereCipher.decryptMessage(subkey, message)
+        score = freqAnalysis.englishFreqMatchScore(decryptMessage)
+
+        scoreList.append((subkey, score))
+
+    scoreList.sort(key=getItemAtIndexOne, reverse=True)
+
+    topScore = []
+
+    # [('A', 2), ('I', 2), ('N', 2), ('W', 2)]
+    for letterAndScore in scoreList[:NUM_MOST_FREQ_LETTERS]:
+        topScore.append(letterAndScore[0])
+
+    #['A', 'I', 'N', 'W']
+    return topScore
 
 
 
@@ -229,83 +250,148 @@ def getKeywordList(dobuleList):
 
 
 # ('string', 3)
-def getKeyListWithKeyLength(message, keyLength):
+def getKeyListWithKeyLength(ciphertext, keyLength):
+
+    ciphertextUp = ciphertext.upper()
+
+    message = NONLETTERS_PATTERN.sub('', ciphertextUp)
 
     # { 0: 'string', 1: 'string', 2: 'string' }
     messageCut = cutMessage(message, keyLength)
 
-    # [['A', 'I', 'N', 'W', 'X'], 1: ['I', 'Z'], 2: ['C'], 3: ['K', 'N', 'R', 'V', 'Y']]
-    keyList = []
+    # [
+    #     [('A', 2), ('I', 2), ('N', 2), ('W', 2)],
+    #     [('I', 3), ('Z', 3), ('A', 2), ('E', 2)],
+    #     [('C', 3), ('G', 2), ('H', 2), ('I', 2)],
+    #     [('K', 2), ('N', 2), ('R', 2), ('V', 2)]
+    # ]
+    allFreqScores = []
 
     for index in range(keyLength):
-        keyList.append(messageDecrypt(messageCut[index]))
+        allFreqScores.append(messageDecrypt(messageCut[index]))
 
-    keywordMatrix = makeMatrix4(keyList)
+    if not SILENT_MODE:
+        for i in range(len(allFreqScores)):
+            print('Possible letters for letter %s of the key: ' % (i + 1), end='')
+            for letter in allFreqScores[i]:
+                print('%s ' % letter, end='')
+            print()
 
+    keywordMatrix = makeMatrix4(allFreqScores)
     keywordList = getKeywordList(keywordMatrix)
 
-    print(keywordList)
+    for keyword in keywordList:
+        if not SILENT_MODE:
+            print('Attempting with key: %s' % (keyword))
 
+        decryptedText = vigenereCipher.decryptMessage(keyword, ciphertextUp)
 
-    # print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, ))
+        if detectEnglish.isEnglish(decryptedText):
+            origCase = []
+            for i in range(len(ciphertext)):
+                if ciphertext[i].isupper():
+                    origCase.append(decryptedText[i].upper())
+                else:
+                    origCase.append(decryptedText[i].lower())
+            decryptedText = ''.join(origCase)
 
+            print('Possible encryption hack with key %s:' % (keyword))
+            print(decryptedText[:200]) # Only show first 200 characters.
+            print()
+            print('Enter D if done, anything else to continue hacking:')
+            response = input('> ')
 
-    return []
+            if response.strip().upper().startswith('D'):
+                return decryptedText
+
+    return None
 
 
 
 def kasiskiExamination(ciphertext):
 
-    # print('1. findRepeatSequencesSpacings')
+    # 1. 반복되는 문자열(3~5)간의 간견 찾기
     repeatedSeqSpacings = findRepeatSequencesSpacings(ciphertext)
-    # print(repeatedSeqSpacings)
-    # print()
 
-    # print('2. getUsefulFactors')
+    # 2. 간격들의 약수들을 계산하기
     seqFactors = {}
     for seq in repeatedSeqSpacings:
         seqFactors[seq] = []
         for spacing in repeatedSeqSpacings[seq]:
             seqFactors[seq].extend(getUsefulFactors(spacing))
-    # print(seqFactors)
-    # print()
 
-    # print('3. getMostCommonFactors')
+    # 3. 가장 많이 반복되는 약수 순서로 정리하기
+    # [(2, 5), (4, 5), (8, 5), (3, 2), (6, 2), (12, 2), (16, 2)]
     factorsByCount = getMostCommonFactors(seqFactors)
-    # print(factorsByCount)
-    # print()
-
     allLikelyKeyLengths = []
     for lengthAndFreq in factorsByCount:
         allLikelyKeyLengths.append(lengthAndFreq[0])
 
+    # [2, 4, 8, 3, 6, 12, 16]
     return allLikelyKeyLengths
 
 
-def attemptHackWithKeyLength(ciphertext, keyLength):
-    print()
+def attemptHackWithKeyLength(ciphertext, mostLikelyKeyLength):
+    # ciphertextUp = ciphertext.upper()
+    message = NONLETTERS_PATTERN.sub('', ciphertext.upper())
+
+    allFreqScores = []
+
+    cutDict = cutMessage(message, mostLikelyKeyLength)
+    for index in cutDict:
+        freqScores = []
+        for possibleKey in LETTERS:
+            decryptedText = vigenereCipher.decryptMessage(possibleKey, cutDict[index])
+            keyAndFreqMatchTuple = (possibleKey, freqAnalysis.englishFreqMatchScore(decryptedText))
+            freqScores.append(keyAndFreqMatchTuple)
+
+        freqScores.sort(key=getItemAtIndexOne, reverse=True)
+        print(freqScores)
+        allFreqScores.append(freqScores[:NUM_MOST_FREQ_LETTERS])
+
+    # [[('C', 5), ('I', 4), ('B', 3), ('G', 3)], [('K', 6), ('R', 6), ('V', 6), ('G', 4)]]
+    print(allFreqScores)
+
+    if not SILENT_MODE:
+        for i in range(len(allFreqScores)):
+            print('Possible letters for letter %s of the key: ' % (i + 1), end='')
+            for freqScore in allFreqScores[i]:
+                print('%s ' % freqScore[0], end='')
+            print()
+
 
 
 def hackVigenera(ciphertext):
-    allLikelyKeyLengths = kasiskiExamination(ciphertext)
+    allLikelyKeyLengths = [4, 3, 2]
+    # allLikelyKeyLengths = kasiskiExamination(ciphertext)
     if not SILENT_MODE:
         keyLengthStr = ''
         for keyLength in allLikelyKeyLengths:
             keyLengthStr += '%s ' % (keyLength)
         print('Kasiski examination results say the most likely key lengths are: ' + keyLengthStr + '\n')
+
     hackedMessage = None
     for keyLength in allLikelyKeyLengths:
         if not SILENT_MODE:
             print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, NUM_MOST_FREQ_LETTERS ** keyLength))
-        hackedMessage = attemptHackWithKeyLength(ciphertext, keyLength)
+        hackedMessage = getKeyListWithKeyLength(ciphertext, keyLength)
         if hackedMessage != None:
             break
 
-    #
-    if hackedMessage == None:
-        if not SILENT_MODE:
-            print('Unable to hack message with likely key length(s). Brute-forcing key length...')
+    # hackedMessage = None
+    # for keyLength in allLikelyKeyLengths:
+    #     if not SILENT_MODE:
+    #         print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, NUM_MOST_FREQ_LETTERS ** keyLength))
+    #     hackedMessage = attemptHackWithKeyLength(ciphertext, keyLength)
+    #     if hackedMessage != None:
+    #         break
 
+    #
+    # if hackedMessage == None:
+    #     if not SILENT_MODE:
+    #         print('Unable to hack message with likely key length(s). Brute-forcing key length...')
+
+    return hackedMessage
 
 if __name__ == '__main__':
     main()
